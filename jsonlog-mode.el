@@ -33,12 +33,18 @@
           (jsonlog-convert-to-string parsed-line))))
 
 (defun jsonlog-convert-to-string (line)
-  (format "%s [%s] %s %s - %s"
-          (jsonlog-convert-timestamp (gethash "@timestamp" line))
-          (jsonlog-shorten-name (gethash "thread_name" line))
-          (gethash "level" line)
-          (gethash "logger_name" line)
-          (gethash "message" line)))
+  (concat
+   (format "%s [%s] %s %s - %s"
+           (jsonlog-convert-timestamp (gethash "@timestamp" line))
+           (jsonlog-shorten-name (gethash "thread_name" line))
+           (gethash "level" line)
+           (gethash "logger_name" line)
+           (gethash "message" line))
+   (jsonlog-get-stacktrace line)))
+
+(defun jsonlog-get-stacktrace (line)
+  (when (gethash "stack_trace" line)
+    (concat "\n" (gethash "stack_trace" line))))
 
 (defun jsonlog-shorten-name (name)
   ;; Picks the last part of a name with namespaces
